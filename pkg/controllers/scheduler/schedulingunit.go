@@ -83,6 +83,7 @@ func schedulingUnitForFedObject(
 		AvoidDisruption: true,
 	}
 
+	schedulingUnit.ReplicasStrategy = getReplicasStrategyFromPolicy(policy)
 	if autoMigration := policy.GetSpec().AutoMigration; autoMigration != nil {
 		info, err := getAutoMigrationInfo(fedObject)
 		if err != nil {
@@ -217,6 +218,18 @@ func getSchedulingModeFromPolicy(policy fedcorev1a1.GenericPropagationPolicy) fe
 		return fedcorev1a1.SchedulingModeDivide
 	}
 	return DefaultSchedulingMode
+}
+
+func getReplicasStrategyFromPolicy(policy fedcorev1a1.GenericPropagationPolicy) fedcorev1a1.ReplicasStrategy {
+	if policy.GetSpec().ReplicasStrategy == nil {
+		return fedcorev1a1.ReplicasStrategySpread
+	}
+
+	if *policy.GetSpec().ReplicasStrategy == fedcorev1a1.ReplicasStrategyBinpack {
+		return fedcorev1a1.ReplicasStrategyBinpack
+	}
+
+	return fedcorev1a1.ReplicasStrategySpread
 }
 
 func getSchedulingModeFromObject(fedObject fedcorev1a1.GenericFederatedObject) (fedcorev1a1.SchedulingMode, bool) {

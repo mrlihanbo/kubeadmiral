@@ -58,9 +58,10 @@ type SchedulingUnit struct {
 	CustomMigration CustomMigrationSpec
 
 	// Controls the scheduling behavior
-	SchedulingMode  fedcorev1a1.SchedulingMode
-	StickyCluster   bool
-	AvoidDisruption bool
+	SchedulingMode   fedcorev1a1.SchedulingMode
+	ReplicasStrategy fedcorev1a1.ReplicasStrategy
+	StickyCluster    bool
+	AvoidDisruption  bool
 
 	// Used to filter/select clusters
 	ClusterSelector map[string]string
