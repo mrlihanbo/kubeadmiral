@@ -21,7 +21,7 @@ import (
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/names"
 )
 
-func GetDefaultEnabledPlugins() *fedcore.EnabledPlugins {
+func GetDefaultEnabledPlugins(replicasPlugin string) *fedcore.EnabledPlugins {
 	filterPlugins := []string{
 		names.APIResources,
 		names.TaintToleration,
@@ -40,7 +40,7 @@ func GetDefaultEnabledPlugins() *fedcore.EnabledPlugins {
 	}
 
 	selectPlugins := []string{names.MaxCluster}
-	replicasPlugins := []string{names.ClusterCapacityWeight}
+	replicasPlugins := []string{replicasPlugin}
 
 	return &fedcore.EnabledPlugins{
 		FilterPlugins:   filterPlugins,

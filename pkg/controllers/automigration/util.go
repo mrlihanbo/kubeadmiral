@@ -20,7 +20,10 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework"
 )
 
 // Returns the number of unschedulable pods that remain
@@ -90,4 +93,32 @@ func podScheduledConditionChanged(oldPod, newPod *corev1.Pod) bool {
 type FederatedObject struct {
 	Object      *unstructured.Unstructured
 	ClusterName string
+}
+
+func GenerateOldEstimateCapacity(
+	clusterObjs []FederatedObject,
+	newEstimatedCapacity map[string]int64,
+	existOldEstimatedCapacity map[string]framework.OldEstimatedCapacity,
+	unschedulableThreshold time.Duration,
+) map[string]framework.OldEstimatedCapacity {
+	if len(clusterObjs) == 0 {
+		return nil
+	}
+
+	oldEstimatedCapacity := make(map[string]framework.OldEstimatedCapacity, len(clusterObjs))
+
+	for _, cluster := range clusterObjs {
+		if oldCapacity, exist := existOldEstimatedCapacity[cluster.ClusterName]; exist && metav1.Now().Time.Before(oldCapacity.ValidUntil.Time) {
+			oldEstimatedCapacity[cluster.ClusterName] = oldCapacity
+		}
+
+		if newCapacity, exist := newEstimatedCapacity[cluster.ClusterName]; exist {
+			oldEstimatedCapacity[cluster.ClusterName] = framework.OldEstimatedCapacity{
+				EstimatedCapacity: newCapacity,
+				ValidUntil:        metav1.NewTime(time.Now().Add(2 * unschedulableThreshold)),
+			}
+		}
+	}
+
+	return oldEstimatedCapacity
 }

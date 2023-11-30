@@ -37,7 +37,7 @@ func doCheck(
 	t.Helper()
 	assert := assert.New(t)
 
-	unschedulableCount, nextCrossIn := countUnschedulablePods(pods, now, threshold)
+	unschedulableCount, nextCrossIn := countScheduledAndUnschedulablePods(pods, now, threshold)
 	assert.Equal(expectedUnschedulable, unschedulableCount)
 	assert.Equal(expectedNextCrossIn, nextCrossIn)
 }

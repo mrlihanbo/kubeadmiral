@@ -306,7 +306,7 @@ func (c *Controller) reconcile(ctx context.Context, qualifiedName common.Qualifi
 		autoMigrationInfo := &framework.AutoMigrationInfo{EstimatedCapacity: estimatedCapacity}
 
 		// Compare with the existing autoMigration annotation
-		existingAutoMigrationInfo := &framework.AutoMigrationInfo{EstimatedCapacity: nil}
+		existingAutoMigrationInfo := &framework.AutoMigrationInfo{EstimatedCapacity: nil, OldEstimatedCapacity: nil}
 		if existingAutoMigrationInfoBytes, exists := annotations[common.AutoMigrationInfoAnnotation]; exists {
 			err := json.Unmarshal([]byte(existingAutoMigrationInfoBytes), existingAutoMigrationInfo)
 			if err != nil {
@@ -314,6 +314,14 @@ func (c *Controller) reconcile(ctx context.Context, qualifiedName common.Qualifi
 				// we treat invalid existing annotation as if it doesn't exist
 			}
 		}
+
+		oldEstimatedCapacity := GenerateOldEstimateCapacity(
+			clusterObjs,
+			estimatedCapacity,
+			existingAutoMigrationInfo.OldEstimatedCapacity,
+			*unschedulableThreshold,
+		)
+		autoMigrationInfo.OldEstimatedCapacity = oldEstimatedCapacity
 
 		if !equality.Semantic.DeepEqual(existingAutoMigrationInfo, autoMigrationInfo) {
 			autoMigrationInfoBytes, err := json.Marshal(autoMigrationInfo)
