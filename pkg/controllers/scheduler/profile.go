@@ -33,6 +33,7 @@ import (
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/maxcluster"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/names"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/placement"
+	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/preferencebinpack"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/rsp"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/tainttoleration"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/runtime"
@@ -53,6 +54,7 @@ var inTreeRegistry = runtime.Registry{
 	names.MaxCluster:                         maxcluster.NewMaxCluster,
 	names.ClusterCapacityWeight:              rsp.NewClusterCapacityWeight,
 	names.ClusterEvicted:                     clusterevicted.NewClusterEvicted,
+	names.PreferenceBinPack:                  preferencebinpack.NewPreferenceBinPack,
 }
 
 func applyProfile(base *fedcore.EnabledPlugins, profile *fedcorev1a1.SchedulingProfile) {
@@ -88,10 +90,11 @@ func reconcileExtPoint(enabled []string, pluginSet fedcorev1a1.PluginSet) []stri
 }
 
 func (s *Scheduler) createFramework(
+	replicasPlugin string,
 	profile *fedcorev1a1.SchedulingProfile,
 	handle framework.Handle,
 ) (framework.Framework, error) {
-	enabledPlugins := fedcorev1a1.GetDefaultEnabledPlugins()
+	enabledPlugins := fedcorev1a1.GetDefaultEnabledPlugins(replicasPlugin)
 	if profile != nil {
 		applyProfile(enabledPlugins, profile)
 	}

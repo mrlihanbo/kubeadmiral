@@ -498,3 +498,11 @@ func DefaultNormalizeScore(maxPriority int64, reverse bool, scores ClusterScoreL
 	}
 	return nil
 }
+
+func ExtractClusterNames(clusters []*fedcorev1a1.FederatedCluster) []string {
+	ret := make([]string, len(clusters))
+	for i := range clusters {
+		ret[i] = clusters[i].Name
+	}
+	return ret
+}
