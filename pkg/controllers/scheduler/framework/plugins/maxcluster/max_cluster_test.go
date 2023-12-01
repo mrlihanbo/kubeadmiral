@@ -69,12 +69,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -103,12 +103,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -121,12 +121,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -140,12 +140,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -159,12 +159,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -179,12 +179,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -199,12 +199,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun", "foo"},
@@ -219,12 +219,12 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 			},
 			clusterScoreList: framework.ClusterScoreList{
 				{
-					Cluster: makeCluster("foo"),
-					Score:   1,
-				},
-				{
 					Cluster: makeCluster("fun"),
 					Score:   2,
+				},
+				{
+					Cluster: makeCluster("foo"),
+					Score:   1,
 				},
 			},
 			expectedCluster: []string{"fun"},
@@ -267,8 +267,8 @@ func TestMaxClusterSelectClusters(t *testing.T) {
 				t.Errorf("expected select cluster length does not match: %d, want: %d", len(gotList), len(test.expectedCluster))
 			}
 			for i := range gotList {
-				if gotList[i].Name != test.expectedCluster[i] {
-					t.Errorf("Unexpected select cluster: %s, want: %s", gotList[i].Name, test.expectedCluster[i])
+				if gotList[i].Cluster.Name != test.expectedCluster[i] {
+					t.Errorf("Unexpected select cluster: %s, want: %s", gotList[i].Cluster.Name, test.expectedCluster[i])
 				}
 			}
 		})

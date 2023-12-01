@@ -86,8 +86,9 @@ func Plan(
 	currentPlan := make(map[string]int64, len(namedPreferences))
 	for _, preference := range namedPreferences {
 		replicas := currentReplicaCount[preference.clusterName]
-		if capacity, exists := limitedCapacity[preference.clusterName]; exists && capacity < replicas {
-			replicas = capacity
+		limited, exists := limitedCapacity[preference.clusterName]
+		if exists && limited < replicas {
+			replicas = limited
 		}
 
 		if capacity, exists := estimatedCapacity[preference.clusterName]; exists && capacity < replicas {
@@ -99,6 +100,9 @@ func Plan(
 		currentTotalOkReplicas += replicas
 
 		if scheduled, exist := scheduledPods[preference.clusterName]; exist {
+			if exists && limited < scheduled {
+				scheduled = limited
+			}
 			currentTotalScheduledReplicas += scheduled
 		}
 	}
@@ -151,6 +155,7 @@ func Plan(
 		plan, err := scaleUp(
 			rsp,
 			currentPlan, desiredPlan,
+			limitedCapacity,
 			totalReplicas-currentTotalOkReplicas,
 			availableClusters,
 		)
@@ -215,6 +220,7 @@ func getDesiredPlan(
 func scaleUp(
 	rsp *ReplicaSchedulingPreference,
 	currentReplicaCount, desiredReplicaCount map[string]int64,
+	limitedCapacity map[string]int64,
 	scaleUpCount int64,
 	availableClusters []string,
 ) (map[string]int64, error) {
@@ -237,7 +243,7 @@ func scaleUp(
 	}
 
 	// no estimatedCapacity and hence no overflow
-	replicasToScaleUp, _ := getDesiredPlan(namedPreferences, nil, nil, scaleUpCount)
+	replicasToScaleUp, _ := getDesiredPlan(namedPreferences, nil, limitedCapacity, scaleUpCount)
 	for cluster, count := range replicasToScaleUp {
 		currentReplicaCount[cluster] += count
 	}
@@ -273,11 +279,14 @@ func scaleDown(
 	return currentReplicaCount, nil
 }
 
-func checkIfEstimatedCapacityStable(estimatedCapacity, scheduledPods map[string]int64) bool {
-	for cluster, capacity := range estimatedCapacity {
-		if capacity != scheduledPods[cluster] {
+func checkIfEstimatedCapacityStable(estimatedCapacity, scheduledReplicas map[string]int64) bool {
+	for cluster, replicas := range scheduledReplicas {
+		if capacity, exist := estimatedCapacity[cluster]; exist && capacity != replicas {
+			return false
+		} else if !exist && replicas == 0 {
 			return false
 		}
 	}
+
 	return true
 }

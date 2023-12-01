@@ -39,7 +39,11 @@ func GetDefaultEnabledPlugins(replicasPlugin string) *fedcore.EnabledPlugins {
 		names.ClusterAffinity,
 	}
 
-	selectPlugins := []string{names.MaxCluster}
+	selectPlugins := []string{
+		names.PrioritySort,
+		names.MaxCluster,
+	}
+
 	replicasPlugins := []string{replicasPlugin}
 
 	return &fedcore.EnabledPlugins{

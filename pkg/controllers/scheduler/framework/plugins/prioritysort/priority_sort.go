@@ -14,42 +14,50 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package maxcluster
+package prioritysort
 
 import (
 	"context"
+	"sort"
 
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework"
 	"github.com/kubewharf/kubeadmiral/pkg/controllers/scheduler/framework/plugins/names"
 )
 
-const (
-	MaxClusterErrReason = "max cluster is less than 0"
-)
+type PrioritySort struct{}
 
-type MaxCluster struct{}
-
-func NewMaxCluster(_ framework.Handle) (framework.Plugin, error) {
-	return &MaxCluster{}, nil
+func NewPrioritySort(_ framework.Handle) (framework.Plugin, error) {
+	return &PrioritySort{}, nil
 }
 
-func (pl *MaxCluster) Name() string {
-	return names.MaxCluster
+func (pl *PrioritySort) Name() string {
+	return names.PrioritySort
 }
 
-func (pl *MaxCluster) SelectClusters(
+func (pl *PrioritySort) SelectClusters(
 	ctx context.Context,
 	su *framework.SchedulingUnit,
 	clusterScoreList framework.ClusterScoreList,
 ) (framework.ClusterScoreList, *framework.Result) {
-	if su.MaxClusters != nil && *su.MaxClusters < 0 {
-		return nil, framework.NewResult(framework.Unschedulable, MaxClusterErrReason)
+	var ret framework.ClusterScoreList
+
+	if len(su.Priorities) > 0 {
+		for _, clusterScore := range clusterScoreList {
+			ret = append(ret, framework.ClusterScore{
+				Cluster: clusterScore.Cluster,
+				Score:   su.Priorities[clusterScore.Cluster.Name],
+			})
+		}
+	} else {
+		ret = clusterScoreList
 	}
 
-	length := len(clusterScoreList)
-	if su.MaxClusters != nil && int(*su.MaxClusters) < length {
-		length = int(*su.MaxClusters)
-	}
+	sort.Slice(ret, func(i, j int) bool {
+		if ret[i].Score != ret[j].Score {
+			return ret[i].Score > ret[j].Score
+		}
+		return ret[i].Cluster.Name > ret[j].Cluster.Name
+	})
 
-	return clusterScoreList[:length], framework.NewResult(framework.Success)
+	return ret, framework.NewResult(framework.Success)
 }
